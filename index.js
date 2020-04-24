@@ -57,6 +57,10 @@ module.exports.typeOf = typeOf;
  * @param {Number} number: The total number of sequential values to be collected
  * 
  * @return {Array} arr: Will be a new array comprised of values copied from the input array
+ * 
+ * Edge Cases: If the input array is not an array or the input number is negative, empty array will be returned
+ *             If the input number is falsey value, first value of the input array will be returned 
+ *             If the input number is larger than the total number of values in the input array, return the full array
  */
  
 function first(array, number) {
@@ -94,10 +98,11 @@ module.exports.first = first;
  * @param {Array} array: The array to copy the values from 
  * @param {Number} number: The total number of sequential values to be collected
  * 
- * @return {Array} arr: Will be an empty array - if 'array' argument is not an array or if 'number' is negative
- * @return {Value}: Can be any value - will be the last value of the 'array' argument - if 'number' is falsey value
- * @return {Array} array: Will be the array argument unchanged - if 'number' is larger than the total number of values in 'array'
  * @return {Array} arr: Will be a new array comprised of values copied from the input array - if no other conditions are met
+ * 
+ * Edge Cases: If the input array is not an array or the input number is negative, empty array will be returned
+ *             If the input number is falsey value, last value of the input array will be returned 
+ *             If the input number is larger than the total number of values in the input array, return the full array
  */
 
 function last(array, number){
@@ -154,7 +159,7 @@ function indexOf(array, value) {
 module.exports.indexOf = indexOf;
 
 /**
- *  each: Designed to loop over a collection, Array or Object, and applies the 
+ *  each: Designed to loop over a collection, Array or Object, and apply the 
  * action Function to each value in the collection.
  * 
  * @param {Array or Object} collection: The collection over which to iterate.
@@ -204,9 +209,8 @@ function unique(array){
 module.exports.unique = unique;
 
 /**
- *  filter: Takes an array and function as arguments, passes each value of the array to the function along with
- * the value's index and the entire array respectively, and returns an array of all the values that have been 
- * deemed true by the the input function
+ *  filter: Takes an array and a function. Designed to take the array and return a new array with values from the
+ * old array that have been 'filtered' as true based on whatever function you gave it to filter by.
  * 
  * @param {Array} array: The array over which to iterate
  * @param {Function} func: The function that the values are passed to
@@ -232,9 +236,8 @@ module.exports.unique = unique;
 module.exports.filter = filter;
 
 /**
- *  reject: Takes an array and function as arguments, passes each value of the array to the function along with
- * the value's index and the entire array respectively, and returns an array of all the values that have been 
- * deemed false by the the input function
+ *  reject: Takes an array and a function as arguments. Designed to take the array and return a new array with values 
+ * from the old array that have been 'rejected' as false based on whatever function you gave it to filter by.
  * 
  * @param {Array} array: The array over which to iterate
  * @param {Function} func: The function that the values are passed to
@@ -261,15 +264,14 @@ function reject(array, func){
 module.exports.reject = reject;
 
 /**
- *  partition: Takes an array and function as arguments, passes each value of the array to the function along with
- * the value's index and the entire array respectively, and returns an array of 2 arrays - 1 with all the values that 
- * have been deemed true by the the input function and 1 with all values that have been deemed false
+ *  partition: Takes an array and a function as arguments. Essentially combines the filter and reject functions by 
+ * creating an array of 2 arrays with values from the input function. 1 of the arrays holds the values deemed truthy 
+ * and one that holds the values deemed falsy - based on conditions set be the input function.
  * 
  * @param {Array} array: The array over which to iterate
  * @param {Function} func: The function that the values are passed to
  * 
- * @return {Array} arr: A new array that holds the 2 arrays - 1 of the values that were true and one of the values
- * that were false
+ * @return {Array} arr: A new array that holds the 2 arrays
  */
 
 function partition(array, func){
@@ -283,9 +285,8 @@ function partition(array, func){
         if(func(array[i], i, array)){
             // Add current value to truthies array
             aTruthies.push(array[i])
-        // If input function returns falsey when current value of input array, its index, and the whole array respectively are passed
-        } else if (!func(array[i], i, array)) {
-            // Add current value to falsies array
+        } else {
+            // Otherwise, add current value to falsies array
             aFalsies.push(array[i])
         };
     };
@@ -295,10 +296,11 @@ function partition(array, func){
 module.exports.partition = partition;
 
 /**
- *  map: Takes a collection and a function as arguments, determines if collection is object or array, passes each 
- * value of the collection to the function along with the value's index (property if its an object) and the entire 
- * collection respectively, and returns an array with all the values that have been deemed true by the the input
- * function
+ *  map: Takes a collection and a function as arguments. Designed to take the collection (can be array or function), 
+ * process each value (along with its index and the entire collection) with the input function, and return a new 
+ * collection as an array with the values that have been returned from the input function. (Keep in mind that the new
+ * array will contain the same number of values as the old, so if nothing is returned for any particular value, the 
+ * new array will show 'undefined' for that index)
  * 
  * @param {Object/Array} collection: Can be an object or array - The collection over which to iterate
  * @param {Function} func: The function that the values are passed to
@@ -331,9 +333,9 @@ function map(collection, func) {
 module.exports.partition = partition
 
 /**
- *  pluck: Designed to return the output of the map function when it's given -> (the array of objects from this 
- * function, and a function that returns a property of its only parameter - where the property matches 'key' taken 
- * as argument from the outer function)
+ *  pluck: Takes an array of objects and a property name as arguments. Designed to go through every object in that
+ * array and return a new array with every value that had a property name that matched the property name taken as 
+ * an argument. (Think of it like a specific type of the map function)
  * 
  * @param {Array} array: The array that's passed to the map function
  * @param {String} key: The property that is checked for in the array input
@@ -350,11 +352,9 @@ function pluck(array, key) {
 module.exports.pluck = pluck
 
 /**
- *  every: Designed to take a collection and function as input, determine whether the collections is an array or 
- * object to process it correctly, then it will return false if any value of the collection passed to the input function
- * (also passed with it's index (key name if object) and it's total collection) returns false, or if no function is 
- * provided, it will return false if any value of collection is falsy. Only returns true if all values have not returned
- * false when passed to the function, or in the case that there is not a function, the values have not been falsy. 
+ *  every: Takes a collection and a function as arguments. Returns true if every value in the collection
+ * is deemed true based on the conditions defined by the input function. Otherwise it returns false. If no input
+ * function is provided, the same rules apply except the values themselves will be evaluated as truthy or falsy.
  * 
  * @param {Array/Object} collection: Can be array or object - The collection over which to iterate
  * @param {Function} func: Optional - The function that each value of collection is passed to
@@ -396,11 +396,9 @@ function every(collection, func) {
 module.exports.every = every;
 
 /**
- *  some: Designed to take a collection and function as input, determine whether the collections is an array or 
- * object to process it correctly, then it will return true if any value of the collection passed to the input function
- * (also passed with it's index (key name if object) and it's total collection) returns true, or if no function is 
- * provided, it will return true if any value of collection is truthy. Only returns false if all values have not returned
- * true when passed to the function, or in the case that there is not a function, the values have not been truthy. 
+ *  some: Takes a collection and a function as arguments. Returns true if any value in the collection
+ * is deemed true based on the conditions defined by the input function. Otherwise it returns false. If no input
+ * function is provided, the same rules apply except the values themselves will be evaluated as truthy or falsy.
  * 
  * @param {Array/Object} collection: Can be array or object - The collection over which to iterate
  * @param {Function} func: Optional - The function that each value of collection is passed to
